@@ -7,11 +7,11 @@ import json
 
 
 class PythonFCU(tk.Tk):
-    def __int__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # with open('config.json') as f:
-        #     self.data = json.load(f)
-        # print(f"Config {str(self.data['port'])}")
+        with open('config.json') as f:
+            self.data = json.load(f)
+        print(f"Config {str(self.data['port'])}")
         self.title("Python FCU Development")
         self.geometry("800x600")
         self.resizable(width=False, height=False)
@@ -21,4 +21,3 @@ class PythonFCU(tk.Tk):
         self.event_frame.grid(row=1, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_frame = ttk.LabelFrame(self, text=" Cbus Messages ")
         self.message_frame.grid(row=0, column=8, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
-
