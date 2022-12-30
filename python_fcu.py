@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
+from node_list import NodeList
 # import serial
 import time
 import json
@@ -26,7 +27,7 @@ class PythonFCU(tk.Tk):
         main_menu.add_cascade(label="FCU", menu=fcu_menu)
         self.node_frame = ttk.LabelFrame(self, text=" Modules ")
         self.node_frame.grid(row=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
-        self.event_frame = ttk.LabelFrame(self, text=" Events ")
+        self.event_frame = NodeList(self, "callback")
         self.event_frame.grid(row=1, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_frame = ttk.LabelFrame(self, text=" Cbus Messages ")
         self.message_frame.grid(row=0, column=8, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
@@ -43,7 +44,11 @@ class PythonFCU(tk.Tk):
         self.node_list.heading('Version', text="Version")
         self.node_list.grid(row=0, column=0, columnspan=7, sticky='WE')
         self.node_list.insert(parent='', index='end', iid=1, text='Node 1', values=[1, "Module1", "type1", "1.0.1"])
-        self.node_list.insert(parent='', index='end', iid=2, text='Node 2', values=[1, "Module2", "type1", "1.2.0"])
+        self.node_list.insert(parent='', index='end', iid=2, text='Node 2', values=[2, "Module2", "type1", "1.2.0"])
+        self.event_frame.populate([
+            {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
+            {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
+        ])
         self.out_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
         self.out_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.clear_button = tk.Button(self.node_frame, text="Clear")
