@@ -4,6 +4,7 @@ from tkinter import scrolledtext
 from fcu_widgets import display_label
 from node_list import NodeList
 from node_event_list import NodeEventList
+from canusb4 import CanUsb4
 # import serial
 import time
 import json
@@ -17,6 +18,7 @@ class PythonFCU(tk.Tk):
         with open('layout.json') as f:
             self.layout = json.load(f)
         print(f"Config {str(self.data['port'])}")
+        self.canusb4 = CanUsb4(self.process_incoming_message)
         self.nodes = self.layout['nodes']
         print(f"Nodes {str(self.nodes)}")
         self.node_events = {}
@@ -48,11 +50,14 @@ class PythonFCU(tk.Tk):
             {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
             {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
         ])
-        self.out_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
-        self.out_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
+        self.message_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         display_label(self, 2, 2, self.selected_node)
         # self.clear_button = tk.Button(self.node_frame, text="Clear")
         # self.clear_button.grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.check_button = tk.Button(self.node_frame, text="QNN", command=self.check_nodes)
+        self.check_button.grid(row=2, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.canusb4.start()
 
     def on_select_node(self, node_id):
         self.selected_node.set(node_id)
@@ -65,6 +70,22 @@ class PythonFCU(tk.Tk):
     def populate_node_list(self):
         print(f"populate_node_list {str(self.nodes.values())}")
         self.node_frame.populate(list(self.nodes.values()))
+
+    def process_incoming_message(self, msg):
+        print(f"Incoming Message : {msg}")
+        output = '<== '+msg
+        self.message_text.insert(tk.END, str(output) + "\n")
+        self.message_text.yview(tk.END)
+
+    def process_output_message(self, msg):
+        output = '==> '+msg
+        print(f"Outgoing Message : {msg}")
+        self.canusb4.send(msg)
+        self.message_text.insert(tk.END, str(output) + "\n")
+        self.message_text.yview(tk.END)
+
+    def check_nodes(self):
+        self.process_output_message(':S7020N0D;')
 
 
 

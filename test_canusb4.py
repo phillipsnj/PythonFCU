@@ -13,7 +13,7 @@ for port in ports:
         print(f"I'm using {str(port[0])}")
         com_port = str(port[0])
 
-ser = serial.Serial(com_port, 9600)
+ser = serial.Serial(com_port)
 count = 0
 buffer = ''
 char = ''
