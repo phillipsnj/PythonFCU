@@ -26,7 +26,7 @@ class CanUsb4(threading.Thread):
                 # print(f"Data in {str(data)}")
                 buffer = buffer + data
                 if data == ';':
-                    print(f"Buffer == {buffer}")
+                    # print(f"Buffer == {buffer}")
                     self.callback(buffer)
                     buffer = ''
                 # print(f"In Waiting : {str(ser.in_waiting)}")

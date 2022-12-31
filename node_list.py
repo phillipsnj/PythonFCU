@@ -52,10 +52,12 @@ class NodeList(tk.Frame):
 
     def on_open_node(self, *args):
         selected_id = self.treeview.selection()[0]
-        self.callbacks['on_open_node'](selected_id)
-        print(f"on_open_node: {str(selected_id)}")
+        node_id = self.treeview.item(selected_id)['values'][0]
+        self.callbacks['on_open_node'](node_id)
+        print(f"on_open_node: {str(selected_id)} {self.treeview.selection()} {str(node_id)}")
 
     def on_select_node(self, *args):
         selected_id = self.treeview.selection()[0]
-        self.callbacks['on_select_node'](selected_id)
-        print(f"on_select_node: {str(selected_id)}")
+        node_id = self.treeview.item(selected_id)['values'][0]
+        self.callbacks['on_select_node'](node_id)
+        print(f"on_select_node: {str(selected_id)} {self.treeview.selection()}")

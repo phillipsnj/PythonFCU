@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def display_button(uart, parent, row, column, name, text):
+def display_button(parent, row, column, name, text):
     print("Button")
     output = str(text + "\r")
     ttk.Button(parent, text=name, command=lambda text=output: ButtonPress(uart, text)) \

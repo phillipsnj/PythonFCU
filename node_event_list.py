@@ -6,10 +6,9 @@ class NodeEventList(tk.Frame):
     """Display list of Node Modules"""
     column_defs = {
         '#0': {'label': 'Row', 'anchor': tk.W},
-        'Id': {'label': 'ID', 'width': 100},
-        'Name': {'label': 'Name', 'width': 100, 'anchor': tk.W},
-        'Type': {'label': 'Type', 'width': 100},
-        'Version': {'label': 'Version', 'width': 100}
+        'event_index': {'label': 'ID', 'width': 100},
+        'event_identifier': {'label': 'Event', 'width': 100, 'anchor': tk.W},
+        'variables': {'label': 'Variables', 'width': 100}
     }
     default_width = 50
     default_minwidth = 10
@@ -57,5 +56,6 @@ class NodeEventList(tk.Frame):
 
     def on_select_event(self, *args):
         selected_id = self.treeview.selection()[0]
-        # self.callbacks['on_open_record'][selected_id]
-        print(f"on_select_event: {str(selected_id)}")
+        event_id = self.treeview.item(selected_id)['values'][1]
+        self.callbacks['on_select_event'](event_id)
+        print(f"on_select_event: {str(event_id)}")
