@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-class NodeList(tk.Frame):
+class NodeEventList(tk.Frame):
     """Display list of Node Modules"""
     column_defs = {
         '#0': {'label': 'Row', 'anchor': tk.W},
@@ -33,8 +33,8 @@ class NodeList(tk.Frame):
             self.scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.treeview.yview())
             self.treeview.configure(yscrollcommand=self.scrollbar.set)
             self.scrollbar.grid(row=0, column=1, sticky='NSW')
-        self.treeview.bind('<Double-1>', self.on_open_node)
-        self.treeview.bind('<<TreeviewSelect>>', self.on_select_node)
+        self.treeview.bind('<Double-1>', self.on_open_event)
+        self.treeview.bind('<<TreeviewSelect>>', self.on_select_event)
 
     def populate(self, rows):
         for row in self.treeview.get_children():
@@ -50,12 +50,12 @@ class NodeList(tk.Frame):
             self.treeview.selection_set(0)
             self.treeview.focus('0')
 
-    def on_open_node(self, *args):
+    def on_open_event(self, *args):
         selected_id = self.treeview.selection()[0]
-        self.callbacks['on_open_node'](selected_id)
-        print(f"on_open_node: {str(selected_id)}")
+        # self.callbacks['on_open_record'][selected_id]
+        print(f"on_open_event: {str(selected_id)}")
 
-    def on_select_node(self, *args):
+    def on_select_event(self, *args):
         selected_id = self.treeview.selection()[0]
-        self.callbacks['on_select_node'](selected_id)
-        print(f"on_select_node: {str(selected_id)}")
+        # self.callbacks['on_open_record'][selected_id]
+        print(f"on_select_event: {str(selected_id)}")

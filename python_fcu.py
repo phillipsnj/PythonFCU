@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
+from fcu_widgets import display_label
 from node_list import NodeList
+from node_event_list import NodeEventList
 # import serial
 import time
 import json
@@ -12,7 +14,13 @@ class PythonFCU(tk.Tk):
         super().__init__(*args, **kwargs)
         with open('config.json') as f:
             self.data = json.load(f)
+        with open('layout.json') as f:
+            self.layout = json.load(f)
         print(f"Config {str(self.data['port'])}")
+        self.nodes = self.layout['nodes']
+        print(f"Nodes {str(self.nodes)}")
+        self.node_events = {}
+        self.selected_node = tk.IntVar()
         self.title("Python FCU Development")
         self.geometry("1000x600")
         self.resizable(width=False, height=False)
@@ -25,31 +33,38 @@ class PythonFCU(tk.Tk):
         fcu_menu.add_command(label='Refresh')
         fcu_menu.add_command(label="Quit FCU", command=self.quit())
         main_menu.add_cascade(label="FCU", menu=fcu_menu)
-        self.node_frame = ttk.LabelFrame(self, text=" Modules ")
+        self.node_frame = NodeList(self, {"on_select_node": self.on_select_node, "on_open_node": self.on_open_node})
         self.node_frame.grid(row=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
-        self.event_frame = NodeList(self, "callback")
+        self.event_frame = NodeEventList(self, "callback")
         self.event_frame.grid(row=1, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_frame = ttk.LabelFrame(self, text=" Cbus Messages ")
         self.message_frame.grid(row=0, column=8, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
-        self.node_list = ttk.Treeview(self.node_frame, columns=['NodeID', 'Name', 'Type', 'Version'], selectmode='browse')
-        self.node_list.column('#0', width=0, stretch=True)
-        self.node_list.column('NodeID', width=20)
-        self.node_list.column('Name', width=200)
-        self.node_list.column('Type', width=200)
-        self.node_list.column('Version', width=200)
-        self.node_list.heading('#0', text="")
-        self.node_list.heading('NodeID', text="Node ID")
-        self.node_list.heading('Name', text="Name")
-        self.node_list.heading('Type', text="Type")
-        self.node_list.heading('Version', text="Version")
-        self.node_list.grid(row=0, column=0, columnspan=7, sticky='WE')
-        self.node_list.insert(parent='', index='end', iid=1, text='Node 1', values=[1, "Module1", "type1", "1.0.1"])
-        self.node_list.insert(parent='', index='end', iid=2, text='Node 2', values=[2, "Module2", "type1", "1.2.0"])
+        # self.node_frame.populate([
+        #     {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
+        #     {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
+        # ])
+        self.populate_node_list()
         self.event_frame.populate([
             {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
             {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
         ])
         self.out_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
         self.out_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        self.clear_button = tk.Button(self.node_frame, text="Clear")
-        self.clear_button.grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        display_label(self, 2, 2, self.selected_node)
+        # self.clear_button = tk.Button(self.node_frame, text="Clear")
+        # self.clear_button.grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+
+    def on_select_node(self, node_id):
+        self.selected_node.set(node_id)
+        print(f"selected_node changed : {str(self.selected_node.get())}")
+
+    def on_open_node(self, node_id):
+        self.selected_node.set(node_id)
+        print(f"selected_node open : {str(self.selected_node.get())}")
+
+    def populate_node_list(self):
+        print(f"populate_node_list {str(self.nodes.values())}")
+        self.node_frame.populate(list(self.nodes.values()))
+
+
+

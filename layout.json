@@ -1,0 +1,23 @@
+{
+  "nodes": {
+    "300": {
+      "Id": 300,
+      "Name": "Node 300",
+      "Type": "CANMIO-OUT",
+      "Version": "1.0.1",
+      "ManufId": 165,
+      "ModuleId": 52,
+      "flags": 13
+    },
+    "4002": {
+      "Id": 4002,
+      "Name": "Node 4002",
+      "Type": "MERG Dev",
+      "Version": "1.2.1",
+      "ManufId": 42,
+      "ModuleId": 2,
+      "flags": 23
+    }
+  },
+  "events": {}
+}
