@@ -55,7 +55,10 @@ class NodeEventList(tk.Frame):
         print(f"on_open_event: {str(selected_id)}")
 
     def on_select_event(self, *args):
-        selected_id = self.treeview.selection()[0]
-        event_id = self.treeview.item(selected_id)['values'][1]
-        self.callbacks['on_select_event'](event_id)
-        print(f"on_select_event: {str(event_id)}")
+        try:
+            selected_id = self.treeview.selection()[0]
+            event_id = self.treeview.item(selected_id)['values'][1]
+            self.callbacks['on_select_event'](event_id)
+            print(f"on_select_event: {str(event_id)}")
+        except IndexError:
+            print(f"no events found")

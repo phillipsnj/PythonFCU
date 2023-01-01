@@ -29,10 +29,11 @@ class PythonFCU(tk.Tk):
         self.actions = {}
         self.actions['B6'] = self.pnn
         self.actions['F2'] = self.enrsp
+        self.actions['9B'] = self.paran
         self.selected_node = tk.IntVar()
         self.selected_event = tk.StringVar()
         self.title("Python FCU Development")
-        self.geometry("1000x600")
+        self.geometry("1000x700")
         self.resizable(width=False, height=False)
         self.option_add('*tearOff', False)
         main_menu = tk.Menu(self)
@@ -43,12 +44,14 @@ class PythonFCU(tk.Tk):
         fcu_menu.add_command(label='Refresh')
         fcu_menu.add_command(label="Quit FCU", command=self.quit())
         main_menu.add_cascade(label="FCU", menu=fcu_menu)
+        self.check_button = tk.Button(self, text="Check Nodes", command=self.check_nodes)
+        self.check_button.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.node_frame = NodeList(self, {"on_select_node": self.on_select_node, "on_open_node": self.on_open_node})
-        self.node_frame.grid(row=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.node_frame.grid(row=2, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.event_frame = NodeEventList(self, {"on_select_event": self.on_select_event})
-        self.event_frame.grid(row=1, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.event_frame.grid(row=4, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_frame = ttk.LabelFrame(self, text=" Cbus Messages ")
-        self.message_frame.grid(row=0, column=8, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.message_frame.grid(row=2, column=8, columnspan=7, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
         # self.node_frame.populate([
         #     {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
         #     {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
@@ -60,17 +63,22 @@ class PythonFCU(tk.Tk):
         # ])
         self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
         self.message_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        display_label(self, 2, 2, self.selected_node)
-        display_label(self, 2, 3, self.selected_event)
+        display_label(self, 3, 1, self.selected_node)
+        display_label(self, 6, 1, self.selected_event)
         # self.clear_button = tk.Button(self.node_frame, text="Clear")
         # self.clear_button.grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        self.check_button = tk.Button(self.node_frame, text="QNN", command=self.check_nodes)
-        self.check_button.grid(row=2, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+
         self.canusb4.start()
 
     def on_select_node(self, node_id):
         self.selected_node.set(node_id)
         print(f"selected_node changed : {str(self.selected_node.get())}")
+        self.selected_event.set('')
+        # self.get_node_parameter(node_id, 5)
+        # self.get_node_parameter(node_id, 6)
+        # self.get_node_parameter(node_id, 7)
+        # self.get_node_parameter(node_id, 2)
+        # self.get_node_parameter(node_id, 20)
         self.get_node_events(node_id)
         self.populate_event_list(node_id)
 
@@ -119,23 +127,30 @@ class PythonFCU(tk.Tk):
         output = ':SB040N57'+cbus_message.pad(node_id, 4)+';'
         self.process_output_message(output)
 
+    def get_node_parameter(self, node_id, parameter_id):
+        print(f"get_node_parameter {node_id} {parameter_id}")
+        output = ':SB040N73'+cbus_message.pad(node_id, 4)+cbus_message.pad(parameter_id, 2)+';'
+        self.process_output_message(output)
+
     def save_layout(self):
         with open('layout.json', 'w') as f:
             json.dump(self.layout, f)
 
     def pnn(self, msg):
-        # print(f"Processing PNN {cbus_message.opcode(msg)}")
+        print(f"Processing PNN {cbus_message.opcode(msg)}")
         node_id = cbus_message.node_id(msg)
-        module_identifier = cbus_message.get_str(msg, 13, 4)
-        flags = cbus_message.flags(cbus_message.get_int(msg, 17, 2))
-        if module_identifier in self.merg['modules']:
-            module_type = self.merg['modules'][module_identifier]['name']
-        else:
-            module_type = 'UNKNOWN'
+
         # print(f"Module Type is : {module_type}")
         # print(f"Nodes : {str(self.layout['nodes'])}")
         # print(f"Node {str(self.layout['nodes'][str(node_id)])}")
-        if str(node_id) not in self.layout['nodes']:
+        key = str(node_id)
+        if key not in self.layout['nodes']:
+            module_identifier = cbus_message.get_str(msg, 13, 4)
+            flags = cbus_message.flags(cbus_message.get_int(msg, 17, 2))
+            if module_identifier in self.merg['modules']:
+                module_type = self.merg['modules'][module_identifier]['name']
+            else:
+                module_type = 'UNKNOWN'
             print(f"Node does not exist : {node_id} {module_identifier} {str(flags)}")
             self.layout['nodes'][str(node_id)] = {
                 'Id': node_id,
@@ -143,19 +158,25 @@ class PythonFCU(tk.Tk):
                 'Type': module_type,
                 'Version': "1.0.1",
                 'flags': flags,
+                'status': True,
                 'parameters': {},
                 'node_variables': {},
                 'events': {}
             }
             self.save_layout()
+            self.get_node_parameter(node_id, 5)
+            self.get_node_parameter(node_id, 6)
+            self.get_node_parameter(node_id, 7)
+            self.get_node_parameter(node_id, 2)
+            self.get_node_parameter(node_id, 20)
             self.populate_node_list()
         else:
-            print(f"Node does exist : {node_id} {module_identifier} {str(flags)}")
+            print(f"Node does exist : {node_id} ")
 
     def enrsp(self, msg):
-        print(f"Processing ENRSP {cbus_message.opcode(msg)}")
+        # print(f"Processing ENRSP {cbus_message.opcode(msg)}")
         node_id = cbus_message.node_id(msg)
-        event_identifier = cbus_message.get_str(msg, 13,8)
+        event_identifier = cbus_message.get_str(msg, 13, 8)
         event_index = cbus_message.get_str(msg, 21, 2)
         # print(f"Node Event : {node_id} {event_identifier} {event_index}")
         # print(f"Node Event for {str(self.layout['nodes'][str(node_id)])}")
@@ -167,7 +188,14 @@ class PythonFCU(tk.Tk):
                 'variables': {}
             }
             self.save_layout()
-        else:
-            print(f"Event {event_identifier} found for {str(node_id)}")
+        # else:
+        #     print(f"Event {event_identifier} found for {str(node_id)}")
+        self.populate_event_list(node_id)
 
-
+    def paran(self, msg):
+        node_id = cbus_message.node_id(msg)
+        parameter_id = cbus_message.get_int(msg, 13, 2)
+        parameter_value = cbus_message.get_str(msg, 15, 2)
+        print(f"Parameter Received {node_id} {parameter_id} {parameter_value}")
+        self.layout['nodes'][str(node_id)]['parameters'][parameter_id] = parameter_value
+        self.save_layout()
