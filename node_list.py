@@ -33,8 +33,12 @@ class NodeList(tk.Frame):
             self.scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.treeview.yview())
             self.treeview.configure(yscrollcommand=self.scrollbar.set)
             self.scrollbar.grid(row=0, column=1, sticky='NSW')
+        self.menu = tk.Menu(self, tearoff=False)
+        self.menu.add_command(label="Get Parameters")
+        self.menu.add_command(label="Get Node Variables")
         self.treeview.bind('<Double-1>', self.on_open_node)
         self.treeview.bind('<<TreeviewSelect>>', self.on_select_node)
+        self.treeview.bind('<Button-2>', self.on_right_click)
 
     def populate(self, rows):
         for row in self.treeview.get_children():
@@ -61,3 +65,9 @@ class NodeList(tk.Frame):
         node_id = self.treeview.item(selected_id)['values'][0]
         self.callbacks['on_select_node'](node_id)
         print(f"on_select_node: {str(selected_id)} {self.treeview.selection()}")
+
+    def on_right_click(self, e, *args):
+        selected_id = self.treeview.selection()[0]
+        node_id = self.treeview.item(selected_id)['values'][0]
+        print(f"on_right_click: {str(selected_id)} {node_id}")
+        self.menu.tk_popup(e.x_root, e.y_root)

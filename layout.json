@@ -1,140 +1,5 @@
 {
   "nodes": {
-    "901": {
-      "Id": 901,
-      "Name": "Node 901",
-      "Type": "CANMIO",
-      "Version": "1.0.1",
-      "flags": {
-        "consumer": true,
-        "producer": true,
-        "flim": true,
-        "bootloading": true,
-        "coe": true,
-        "learn": false
-      },
-      "status": true,
-      "parameters": {
-        "5": "14",
-        "6": "7F",
-        "7": "03",
-        "2": "62",
-        "20": "03"
-      },
-      "node_variables": {},
-      "events": {
-        "03850065": {
-          "event_identifier": "03850065",
-          "event_index": "01",
-          "variables": {}
-        },
-        "03850066": {
-          "event_identifier": "03850066",
-          "event_index": "02",
-          "variables": {}
-        },
-        "03850003": {
-          "event_identifier": "03850003",
-          "event_index": "03",
-          "variables": {}
-        },
-        "03850068": {
-          "event_identifier": "03850068",
-          "event_index": "04",
-          "variables": {}
-        },
-        "03850069": {
-          "event_identifier": "03850069",
-          "event_index": "05",
-          "variables": {}
-        },
-        "03850006": {
-          "event_identifier": "03850006",
-          "event_index": "06",
-          "variables": {}
-        },
-        "03850007": {
-          "event_identifier": "03850007",
-          "event_index": "07",
-          "variables": {}
-        },
-        "03850008": {
-          "event_identifier": "03850008",
-          "event_index": "08",
-          "variables": {}
-        },
-        "03850009": {
-          "event_identifier": "03850009",
-          "event_index": "09",
-          "variables": {}
-        },
-        "0385000A": {
-          "event_identifier": "0385000A",
-          "event_index": "0A",
-          "variables": {}
-        },
-        "0385000B": {
-          "event_identifier": "0385000B",
-          "event_index": "0B",
-          "variables": {}
-        },
-        "0385000C": {
-          "event_identifier": "0385000C",
-          "event_index": "0C",
-          "variables": {}
-        },
-        "0385000D": {
-          "event_identifier": "0385000D",
-          "event_index": "0D",
-          "variables": {}
-        },
-        "0385000E": {
-          "event_identifier": "0385000E",
-          "event_index": "0E",
-          "variables": {}
-        },
-        "0385000F": {
-          "event_identifier": "0385000F",
-          "event_index": "0F",
-          "variables": {}
-        },
-        "03850010": {
-          "event_identifier": "03850010",
-          "event_index": "10",
-          "variables": {}
-        },
-        "03850001": {
-          "event_identifier": "03850001",
-          "event_index": "11",
-          "variables": {}
-        },
-        "0385012E": {
-          "event_identifier": "0385012E",
-          "event_index": "12",
-          "variables": {}
-        },
-        "038500CA": {
-          "event_identifier": "038500CA",
-          "event_index": "13",
-          "variables": {}
-        },
-        "03850002": {
-          "event_identifier": "03850002",
-          "event_index": "14",
-          "variables": {}
-        },
-        "03850004": {
-          "event_identifier": "03850004",
-          "event_index": "15",
-          "variables": {}
-        },
-        "03850005": {
-          "event_identifier": "03850005",
-          "event_index": "16",
-          "variables": {}
-        }
-      }
-    },
     "4094": {
       "Id": 4094,
       "Name": "Node 4094",
@@ -168,9 +33,12 @@
       },
       "status": true,
       "parameters": {
+        "8": "0D",
+        "5": "03",
         "6": "0C",
         "7": "05",
-        "2": "62"
+        "2": "62",
+        "20": "00"
       },
       "node_variables": {},
       "events": {
