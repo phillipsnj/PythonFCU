@@ -5,7 +5,7 @@ import serial.tools.list_ports as listports
 
 
 class CanUsb4(threading.Thread):
-    def __init__(self, callback):
+    def __init__(self, callback, global_variables):
         threading.Thread.__init__(self)
         self.callback = callback
         self.com_port = ''
@@ -13,6 +13,7 @@ class CanUsb4(threading.Thread):
             port_name = str(port[2])[12:21]
             if port_name.upper() == '04D8:F80C':
                 print(f"I'm using {str(port[0])}")
+                global_variables['com_port'].set(str(port[0]))
                 self.com_port = str(port[0])
         self.ser = serial.Serial(self.com_port)
 

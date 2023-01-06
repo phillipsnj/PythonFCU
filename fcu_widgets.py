@@ -9,7 +9,13 @@ def display_button(parent, row, column, name, text):
         .grid(row=row, column=column, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
 
 
-def display_label(parent, row, column, name):
+def display_value(parent, row, column, name):
     print("Label")
     ttk.Label(parent, textvariable=name) \
+        .grid(row=row, column=column, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+
+
+def display_label(parent, row, column, name):
+    print("Label")
+    ttk.Label(parent, text=name) \
         .grid(row=row, column=column, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)

@@ -21,6 +21,7 @@ class NodeList(tk.Frame):
         self.treeview = ttk.Treeview(self, columns=list(self.column_defs.keys())[1:], selectmode='browse')
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
+        self.selected_node = tk.IntVar()
         self.treeview.grid(row=0, column=0, sticky='NSEW')
         for name, definition in self.column_defs.items():
             label = definition.get('label', '')
@@ -34,7 +35,7 @@ class NodeList(tk.Frame):
             self.treeview.configure(yscrollcommand=self.scrollbar.set)
             self.scrollbar.grid(row=0, column=1, sticky='NSW')
         self.menu = tk.Menu(self, tearoff=False)
-        self.menu.add_command(label="Get Parameters")
+        self.menu.add_command(label="Get Parameters", command=self.get_all_parameters)
         self.menu.add_command(label="Get Node Variables")
         self.treeview.bind('<Double-1>', self.on_open_node)
         self.treeview.bind('<<TreeviewSelect>>', self.on_select_node)
@@ -62,6 +63,7 @@ class NodeList(tk.Frame):
 
     def on_select_node(self, *args):
         selected_id = self.treeview.selection()[0]
+        self.selected_node.set(self.treeview.item(selected_id)['values'][0])
         node_id = self.treeview.item(selected_id)['values'][0]
         self.callbacks['on_select_node'](node_id)
         print(f"on_select_node: {str(selected_id)} {self.treeview.selection()}")
@@ -71,3 +73,9 @@ class NodeList(tk.Frame):
         node_id = self.treeview.item(selected_id)['values'][0]
         print(f"on_right_click: {str(selected_id)} {node_id}")
         self.menu.tk_popup(e.x_root, e.y_root)
+
+    def get_all_parameters(self):
+        print(f"get_all_parameters: {str(self.selected_node.get())}")
+        for i in range(21):
+            self.callbacks['get_node_parameter'](self.selected_node.get(), i)
+

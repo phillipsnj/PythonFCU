@@ -3,7 +3,7 @@ def get_str(msg, start, length):
 
 
 def pad(num, length):
-    output = '0000000000' + hex(num)[2:]
+    output = '0000000000' + hex(num)[2:].upper()
     return output[length * -1:]
 
 

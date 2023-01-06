@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-class NodeEventList(tk.Frame):
+class NodeEventList(tk.LabelFrame):
     """Display list of Node Modules"""
     column_defs = {
         '#0': {'label': 'Row', 'anchor': tk.W},
@@ -16,6 +16,7 @@ class NodeEventList(tk.Frame):
 
     def __init__(self, parent, callbacks, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        self.configure(text='Events')
         self.callbacks = callbacks
         self.treeview = ttk.Treeview(self, columns=list(self.column_defs.keys())[1:], selectmode='browse')
         self.columnconfigure(0, weight=1)

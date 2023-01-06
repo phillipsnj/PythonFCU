@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
-from fcu_widgets import display_label
+from fcu_widgets import display_value, display_label
 from node_list import NodeList
 from node_event_list import NodeEventList
 from canusb4 import CanUsb4
@@ -22,9 +22,14 @@ class PythonFCU(tk.Tk):
         with open('merg_config.json') as f:
             self.merg = json.load(f)
         print(f"Config {str(self.data['port'])}")
-        self.canusb4 = CanUsb4(self.process_incoming_message)
+
         # self.nodes = self.layout['nodes']
         print(f"Layout Nodes {str(self.layout['nodes'])}")
+        self.global_variables = {
+            "selected_node": tk.IntVar(),
+            "selected_event": tk.StringVar(),
+            "com_port": tk.StringVar()
+        }
         self.node_events = {}
         self.actions = {}
         self.actions['B6'] = self.pnn
@@ -32,6 +37,9 @@ class PythonFCU(tk.Tk):
         self.actions['9B'] = self.paran
         self.selected_node = tk.IntVar()
         self.selected_event = tk.StringVar()
+        self.selected_node_variables = []
+        self.canusb4 = CanUsb4(self.process_incoming_message, self.global_variables)
+
         self.title("Python FCU Development")
         self.geometry("1000x700")
         self.resizable(width=False, height=False)
@@ -44,29 +52,33 @@ class PythonFCU(tk.Tk):
         fcu_menu.add_command(label='Refresh')
         fcu_menu.add_command(label="Quit FCU", command=self.quit())
         main_menu.add_cascade(label="FCU", menu=fcu_menu)
-        self.check_button = tk.Button(self, text="Check Nodes", command=self.check_nodes)
-        self.check_button.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        self.node_frame = NodeList(self, {"on_select_node": self.on_select_node, "on_open_node": self.on_open_node})
-        self.node_frame.grid(row=2, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.check_button = tk.Button(self, text="Check Modules", command=self.check_nodes)
+
+        self.node_frame = NodeList(self, {
+            "on_select_node": self.on_select_node,
+            "on_open_node": self.on_open_node,
+            "get_node_parameter": self.get_node_parameter
+        })
+
         self.event_frame = NodeEventList(self, {"on_select_event": self.on_select_event})
-        self.event_frame.grid(row=4, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+
         self.message_frame = ttk.LabelFrame(self, text=" Cbus Messages ")
-        self.message_frame.grid(row=2, column=8, columnspan=7, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
-        # self.node_frame.populate([
-        #     {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
-        #     {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
-        # ])
+
         self.populate_node_list()
-        # self.event_frame.populate([
-        #     {'Id': 1, 'Name': "Module1", 'Type': 'type1', 'Version': "1.0.1"},
-        #     {'Id': 2, 'Name': "Module2", 'Type': 'type1', 'Version': "1.2.1"}
-        # ])
         self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
-        self.message_text.grid(row=2, column=0, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        display_label(self, 3, 1, self.selected_node)
-        display_label(self, 6, 1, self.selected_event)
-        # self.clear_button = tk.Button(self.node_frame, text="Clear")
-        # self.clear_button.grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+
+        display_value(self, 3, 1, self.selected_node)
+        display_value(self, 5, 1, self.selected_event)
+        display_value(self, 6, 1, self.global_variables['com_port'])
+        # display_label(self, 5, 0, self.layout['nodes'][self.selected_node.get()]['number_of_node_variables'])
+        self.clear_messages_button = tk.Button(self, text="Clear Messages", command=self.clear_messages)
+
+        self.check_button.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.node_frame.grid(row=2, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.event_frame.grid(row=4, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+        self.message_frame.grid(row=2, column=8, columnspan=7, rowspan=4, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
+        self.message_text.grid(row=2, column=0, columnspan=4, rowspan=4, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.clear_messages_button.grid(row=5, column=7, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
 
         self.canusb4.start()
 
@@ -104,7 +116,7 @@ class PythonFCU(tk.Tk):
 
     def process_incoming_message(self, msg):
         # print(f"Incoming Message : {msg}")
-        output = '<== '+msg
+        output = '<== ' + msg
         self.message_text.insert(tk.END, str(output) + "\n")
         self.message_text.yview(tk.END)
         if cbus_message.opcode(msg) in self.actions:
@@ -115,7 +127,7 @@ class PythonFCU(tk.Tk):
             print(f'Unsupported OpCode : {cbus_message.opcode(msg)}')
 
     def process_output_message(self, msg):
-        output = '==> '+msg
+        output = '==> ' + msg
         # print(f"Outgoing Message : {msg}")
         self.canusb4.send(msg)
         self.message_text.insert(tk.END, str(output) + "\n")
@@ -124,13 +136,18 @@ class PythonFCU(tk.Tk):
     def check_nodes(self):
         self.process_output_message(':SB040N0D;')
 
+    def clear_messages(self):
+        self.message_text.delete(1.0, tk.END)
+        self.message_text.yview(tk.END)
+
     def get_node_events(self, node_id):
-        output = ':SB040N57'+cbus_message.pad(node_id, 4)+';'
+        """ Send out a NERD Request for all Events for the selected node."""
+        output = ':SB040N57' + cbus_message.pad(node_id, 4) + ';'
         self.process_output_message(output)
 
     def get_node_parameter(self, node_id, parameter_id):
         print(f"get_node_parameter {node_id} {parameter_id}")
-        output = ':SB040N73'+cbus_message.pad(node_id, 4)+cbus_message.pad(parameter_id, 2)+';'
+        output = ':SB040N73' + cbus_message.pad(node_id, 4) + cbus_message.pad(parameter_id, 2) + ';'
         self.process_output_message(output)
         time.sleep(0.01)
 
@@ -154,23 +171,26 @@ class PythonFCU(tk.Tk):
             else:
                 module_type = 'UNKNOWN'
             print(f"Node does not exist : {node_id} {module_identifier} {str(flags)}")
+            parameters = []
+            for i in range(21):
+                parameters.append('null')
             self.layout['nodes'][str(node_id)] = {
                 'Id': node_id,
-                'Name': "Node "+str(node_id),
+                'Name': "Node " + str(node_id),
                 'Type': module_type,
                 'Version': "1.0.1",
                 'flags': flags,
                 'status': True,
-                'parameters': {},
-                'node_variables': {},
+                'parameters': parameters,
+                'node_variables': [],
                 'events': {}
             }
             self.save_layout()
             # time.sleep(0.01)
             # self.get_node_parameter(node_id, 2)
-            # self.get_node_parameter(node_id, 6)
+            self.get_node_parameter(node_id, 6)
             # self.get_node_parameter(node_id, 7)
-            # self.get_node_parameter(node_id, 5)
+            self.get_node_parameter(node_id, 5)
             # self.get_node_parameter(node_id, 20)
             self.populate_node_list()
         else:
@@ -201,13 +221,16 @@ class PythonFCU(tk.Tk):
         parameter_id = cbus_message.get_int(msg, 13, 2)
         parameter_value = cbus_message.get_str(msg, 15, 2)
         print(f"Parameter Received {node_id} {parameter_id} {parameter_value}")
-        key = str(parameter_id)
-        if key in self.layout['nodes'][str(node_id)]['parameters']:
-            print(f"Parameter Exists")
-            if self.layout['nodes'][str(node_id)]['parameters'][key] != parameter_value:
-                print(f"Parameter Value has changed")
-                self.layout['nodes'][str(node_id)]['parameters'][parameter_id] = parameter_value
-                self.save_layout()
-        else:
-            self.layout['nodes'][str(node_id)]['parameters'][parameter_id] = parameter_value
-            self.save_layout()
+        # key = str(parameter_id)
+        self.layout['nodes'][str(node_id)]['parameters'][parameter_id] = parameter_value
+        match parameter_id:
+            case 6:
+                self.layout['nodes'][str(node_id)]['number_of_node_variables'] = int(parameter_value, 16)
+                if len(self.layout['nodes'][str(node_id)]['node_variables']) == 0:
+                    for i in range(int(parameter_value, 16) + 1):
+                        self.layout['nodes'][str(node_id)]['node_variables'].append('null')
+            case 5:
+                self.layout['nodes'][str(node_id)]['number_of_event_variables'] = int(parameter_value, 16)
+            case 4:
+                self.layout['nodes'][str(node_id)]['max_number_of_events'] = int(parameter_value, 16)
+        self.save_layout()
