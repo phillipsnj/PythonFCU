@@ -19,3 +19,9 @@ def display_label(parent, row, column, name):
     print("Label")
     ttk.Label(parent, text=name) \
         .grid(row=row, column=column, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+
+
+def enter_node_variable(parent, row, column, variable):
+    ttk.Entry(parent, textvariable=variable).grid(row=row, column=column, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
+
+

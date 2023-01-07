@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
-from fcu_widgets import display_value, display_label
+from fcu_widgets import display_value, display_label, enter_node_variable
 from node_list import NodeList
 from node_event_list import NodeEventList
 from canusb4 import CanUsb4
@@ -35,9 +35,13 @@ class PythonFCU(tk.Tk):
         self.actions['B6'] = self.pnn
         self.actions['F2'] = self.enrsp
         self.actions['9B'] = self.paran
+        self.actions['97'] = self.nvans
         self.selected_node = tk.IntVar()
         self.selected_event = tk.StringVar()
         self.selected_node_variables = []
+        for i in range(256):
+            self.selected_node_variables.append(tk.IntVar())
+            self.selected_node_variables[i].set(0)
         self.canusb4 = CanUsb4(self.process_incoming_message, self.global_variables)
 
         self.title("Python FCU Development")
@@ -67,18 +71,23 @@ class PythonFCU(tk.Tk):
         self.populate_node_list()
         self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
 
-        display_value(self, 3, 1, self.selected_node)
+        display_value(self, 3, 2, self.selected_node)
         display_value(self, 5, 1, self.selected_event)
         display_value(self, 6, 1, self.global_variables['com_port'])
+        enter_node_variable(self, 3, 5, self.selected_node_variables[1])
         # display_label(self, 5, 0, self.layout['nodes'][self.selected_node.get()]['number_of_node_variables'])
         self.clear_messages_button = tk.Button(self, text="Clear Messages", command=self.clear_messages)
+        self.get_parameters_button = tk.Button(self, text="Get Parameters", command=self.get_node_parameters)
+        self.get_node_variables_button = tk.Button(self, text="Edit Node Variables", command=self.open_node_variable_window)
 
         self.check_button.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.node_frame.grid(row=2, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.event_frame.grid(row=4, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_frame.grid(row=2, column=8, columnspan=7, rowspan=4, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_text.grid(row=2, column=0, columnspan=4, rowspan=4, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        self.clear_messages_button.grid(row=5, column=7, columnspan=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.clear_messages_button.grid(row=5, column=7, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.get_parameters_button.grid(row=3, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.get_node_variables_button.grid(row=3, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
 
         self.canusb4.start()
 
@@ -89,6 +98,7 @@ class PythonFCU(tk.Tk):
         self.get_node_events(node_id)
         self.populate_event_list(node_id)
         self.get_node_parameter(node_id, 8)
+        # self.get_node_variables()
 
     def on_open_node(self, node_id):
         self.selected_node.set(node_id)
@@ -150,6 +160,31 @@ class PythonFCU(tk.Tk):
         output = ':SB040N73' + cbus_message.pad(node_id, 4) + cbus_message.pad(parameter_id, 2) + ';'
         self.process_output_message(output)
         time.sleep(0.01)
+
+    def get_node_parameters(self):
+        for i in range(21):
+            self.get_node_parameter(self.selected_node.get(), i)
+
+    def get_node_variable(self, node_id, variable_id):
+        output = ':SB040N71' + cbus_message.pad(node_id, 4) + cbus_message.pad(variable_id, 2) + ';'
+        self.process_output_message(output)
+        time.sleep(0.01)
+
+    def get_node_variables(self):
+        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_node_variables']+1):
+            self.get_node_variable(self.selected_node.get(), i)
+
+    def open_node_variable_window(self):
+        new_window = tk.Toplevel(self)
+        self.get_node_variables()
+        new_window.title("Node Variables")
+        new_window.geometry("400x400")
+        ttk.Label(new_window, text="Node Variables")\
+            .grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_node_variables']+1):
+            enter_node_variable(new_window, i, 0, self.selected_node_variables[i])
+        # enter_node_variable(new_window, 2, 0, self.selected_node_variables[2])
+        new_window.grab_set()
 
     def save_layout(self):
         with open('layout.json', 'w') as f:
@@ -233,4 +268,13 @@ class PythonFCU(tk.Tk):
                 self.layout['nodes'][str(node_id)]['number_of_event_variables'] = int(parameter_value, 16)
             case 4:
                 self.layout['nodes'][str(node_id)]['max_number_of_events'] = int(parameter_value, 16)
+        self.save_layout()
+
+    def nvans(self, msg):
+        node_id = cbus_message.node_id(msg)
+        variable_id = cbus_message.get_int(msg, 13, 2)
+        variable_value = cbus_message.get_str(msg, 15, 2)
+        self.layout['nodes'][str(node_id)]['node_variables'][variable_id] = variable_value
+        if self.selected_node.get() == node_id:
+            self.selected_node_variables[variable_id].set(variable_value)
         self.save_layout()
