@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
 from fcu_widgets import display_value, display_label, enter_node_variable
+from node_variables import NodeVariablesFrame
 from node_list import NodeList
 from node_event_list import NodeEventList
 from canusb4 import CanUsb4
@@ -36,6 +37,7 @@ class PythonFCU(tk.Tk):
         self.actions['F2'] = self.enrsp
         self.actions['9B'] = self.paran
         self.actions['97'] = self.nvans
+        self.actions['50'] = self.rqnn
         self.selected_node = tk.IntVar()
         self.selected_event = tk.StringVar()
         self.selected_node_variables = []
@@ -57,6 +59,8 @@ class PythonFCU(tk.Tk):
         fcu_menu.add_command(label="Quit FCU", command=self.quit())
         main_menu.add_cascade(label="FCU", menu=fcu_menu)
         self.check_button = tk.Button(self, text="Check Modules", command=self.check_nodes)
+        self.settings_button = tk.Button(self, text="Settings", command=self.settings)
+        self.remove_node_button = tk.Button(self, text="Remove Node", command=self.remove_node)
 
         self.node_frame = NodeList(self, {
             "on_select_node": self.on_select_node,
@@ -71,23 +75,27 @@ class PythonFCU(tk.Tk):
         self.populate_node_list()
         self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
 
-        display_value(self, 3, 2, self.selected_node)
+        display_value(self, 3, 3, self.selected_node)
         display_value(self, 5, 1, self.selected_event)
         display_value(self, 6, 1, self.global_variables['com_port'])
-        enter_node_variable(self, 3, 5, self.selected_node_variables[1])
+        # enter_node_variable(self, 3, 5, self.selected_node_variables[1])
         # display_label(self, 5, 0, self.layout['nodes'][self.selected_node.get()]['number_of_node_variables'])
         self.clear_messages_button = tk.Button(self, text="Clear Messages", command=self.clear_messages)
         self.get_parameters_button = tk.Button(self, text="Get Parameters", command=self.get_node_parameters)
-        self.get_node_variables_button = tk.Button(self, text="Edit Node Variables", command=self.open_node_variable_window)
+        self.get_node_variables_button = tk.Button(self,
+                                                   text="Edit Node Variables",
+                                                   command=self.open_node_variable_window)
 
         self.check_button.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.settings_button.grid(row=1, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.node_frame.grid(row=2, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
         self.event_frame.grid(row=4, column=0, columnspan=7, sticky='WE', padx=5, pady=5, ipadx=5, ipady=5)
-        self.message_frame.grid(row=2, column=8, columnspan=7, rowspan=4, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
+        self.message_frame.grid(row=2, column=7, columnspan=7, rowspan=4, sticky='NW', padx=5, pady=5, ipadx=5, ipady=5)
         self.message_text.grid(row=2, column=0, columnspan=4, rowspan=4, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.clear_messages_button.grid(row=5, column=7, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.get_parameters_button.grid(row=3, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.get_node_variables_button.grid(row=3, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.remove_node_button.grid(row=3, column=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
 
         self.canusb4.start()
 
@@ -146,6 +154,12 @@ class PythonFCU(tk.Tk):
     def check_nodes(self):
         self.process_output_message(':SB040N0D;')
 
+    def remove_node(self):
+        pass
+
+    def settings(self):
+        pass
+
     def clear_messages(self):
         self.message_text.delete(1.0, tk.END)
         self.message_text.yview(tk.END)
@@ -179,11 +193,17 @@ class PythonFCU(tk.Tk):
         self.get_node_variables()
         new_window.title("Node Variables")
         new_window.geometry("400x400")
-        ttk.Label(new_window, text="Node Variables")\
-            .grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
-        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_node_variables']+1):
-            enter_node_variable(new_window, i, 0, self.selected_node_variables[i])
-        # enter_node_variable(new_window, 2, 0, self.selected_node_variables[2])
+        # new_window.grid_rowconfigure(0, weight=1)
+        new_window.grid_columnconfigure(0, weight=1)
+        node_variables_frame = NodeVariablesFrame(new_window, {"process_output_message": self.process_output_message},
+                                                  self.layout['nodes'][str(self.selected_node.get())],
+                                                  self.selected_node_variables)
+        # ttk.Label(new_window, text="Node Variables")\
+        #     .grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        # node_variables_frame.grid(row=1, rowspan=5, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        node_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
         new_window.grab_set()
 
     def save_layout(self):
@@ -195,6 +215,7 @@ class PythonFCU(tk.Tk):
         print(f"Processing PNN {cbus_message.opcode(msg)}")
         node_id = cbus_message.node_id(msg)
         flags = cbus_message.flags(cbus_message.get_int(msg, 17, 2))
+        pnn_flags = cbus_message.get_int(msg, 17, 2)
         # print(f"Module Type is : {module_type}")
         # print(f"Nodes : {str(self.layout['nodes'])}")
         # print(f"Node {str(self.layout['nodes'][str(node_id)])}")
@@ -213,8 +234,9 @@ class PythonFCU(tk.Tk):
                 'Id': node_id,
                 'Name': "Node " + str(node_id),
                 'Type': module_type,
-                'Version': "1.0.1",
+                'Version': "",
                 'flags': flags,
+                'pnn_flags': pnn_flags,
                 'status': True,
                 'parameters': parameters,
                 'node_variables': [],
@@ -273,8 +295,24 @@ class PythonFCU(tk.Tk):
     def nvans(self, msg):
         node_id = cbus_message.node_id(msg)
         variable_id = cbus_message.get_int(msg, 13, 2)
-        variable_value = cbus_message.get_str(msg, 15, 2)
+        variable_value = cbus_message.get_int(msg, 15, 2)
         self.layout['nodes'][str(node_id)]['node_variables'][variable_id] = variable_value
         if self.selected_node.get() == node_id:
             self.selected_node_variables[variable_id].set(variable_value)
+        self.save_layout()
+
+    def rqnn(self, msg):
+        print(f"Request Node Number")
+        node_id = cbus_message.node_id(msg)
+        new_node_number = self.layout['settings']['next_node_number']
+
+        while str(new_node_number) in self.layout['nodes']:
+            new_node_number += 1
+        self.layout['settings']['next_node_number'] += 1
+        output = ':SB040N42' + cbus_message.pad(new_node_number, 4) + ';'
+        self.process_output_message(output)
+        time.sleep(0.01)
+        output = ':SB040N54' + cbus_message.pad(new_node_number, 4) + ';'
+        self.process_output_message(output)
+        time.sleep(0.01)
         self.save_layout()

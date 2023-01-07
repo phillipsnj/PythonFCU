@@ -1,4 +1,8 @@
 {
   "nodes": {},
-  "events": {}
+  "events": {},
+  "settings": {
+    "next_node_number" : 255,
+    "layout_title" : "New Layout"
+  }
 }
