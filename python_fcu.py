@@ -5,6 +5,7 @@ from fcu_widgets import display_value, display_label, enter_node_variable
 from node_variables import NodeVariablesFrame
 from node_list import NodeList
 from node_event_list import NodeEventList
+from event_variables import EventVariablesFrame
 from canusb4 import CanUsb4
 import cbus_message
 
@@ -22,6 +23,7 @@ class PythonFCU(tk.Tk):
             self.layout = json.load(f)
         with open('merg_config.json') as f:
             self.merg = json.load(f)
+        time.sleep(0.5)
         print(f"Config {str(self.data['port'])}")
 
         # self.nodes = self.layout['nodes']
@@ -38,18 +40,22 @@ class PythonFCU(tk.Tk):
         self.actions['9B'] = self.paran
         self.actions['97'] = self.nvans
         self.actions['50'] = self.rqnn
+        self.actions['B5'] = self.neval
         self.selected_node = tk.IntVar()
-        self.selected_event = tk.StringVar()
+        self.selected_event = tk.IntVar()
         self.selected_node_variables = []
+        self.selected_event_variables = []
         for i in range(256):
             self.selected_node_variables.append(tk.IntVar())
             self.selected_node_variables[i].set(0)
+            self.selected_event_variables.append(tk.IntVar())
+            self.selected_event_variables[i].set(0)
         self.canusb4 = CanUsb4(self.process_incoming_message, self.global_variables)
 
         self.title("Python FCU Development")
         self.geometry("1000x700")
         self.resizable(width=False, height=False)
-        self.option_add('*tearOff', False)
+        self.option_add('tearOff', False)
         main_menu = tk.Menu(self)
         self.config(menu=main_menu)
         main_menu.add('command', label='Refresh')
@@ -61,6 +67,8 @@ class PythonFCU(tk.Tk):
         self.check_button = tk.Button(self, text="Check Modules", command=self.check_nodes)
         self.settings_button = tk.Button(self, text="Settings", command=self.settings)
         self.remove_node_button = tk.Button(self, text="Remove Node", command=self.remove_node)
+        self.edit_event_variables = tk.Button(self, text="Edit Event Variables", command=self.open_event_variable_window)
+        self.remove_event = tk.Button(self, text="Remove Event", command=self.settings)
 
         self.node_frame = NodeList(self, {
             "on_select_node": self.on_select_node,
@@ -76,7 +84,7 @@ class PythonFCU(tk.Tk):
         self.message_text = tk.scrolledtext.ScrolledText(self.message_frame, height=15, width=30)
 
         display_value(self, 3, 3, self.selected_node)
-        display_value(self, 5, 1, self.selected_event)
+        display_value(self, 5, 4, self.selected_event)
         display_value(self, 6, 1, self.global_variables['com_port'])
         # enter_node_variable(self, 3, 5, self.selected_node_variables[1])
         # display_label(self, 5, 0, self.layout['nodes'][self.selected_node.get()]['number_of_node_variables'])
@@ -96,12 +104,14 @@ class PythonFCU(tk.Tk):
         self.get_parameters_button.grid(row=3, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.get_node_variables_button.grid(row=3, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         self.remove_node_button.grid(row=3, column=2, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.edit_event_variables.grid(row=5, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        self.remove_event.grid(row=5, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
 
         self.canusb4.start()
 
     def on_select_node(self, node_id):
         self.selected_node.set(node_id)
-        print(f"selected_node changed : {str(self.selected_node.get())}")
+        print(f"MAIN:selected_node changed : {str(self.selected_node.get())}")
         self.selected_event.set('')
         self.get_node_events(node_id)
         self.populate_event_list(node_id)
@@ -117,8 +127,8 @@ class PythonFCU(tk.Tk):
         self.get_node_parameter(node_id, 2)
         self.get_node_parameter(node_id, 20)
 
-    def on_select_event(self, event_identifier):
-        self.selected_event.set(event_identifier)
+    def on_select_event(self, event_index):
+        self.selected_event.set(event_index)
         print(f"on_select_event changed : {str(self.selected_node.get())}")
 
     def populate_node_list(self):
@@ -150,12 +160,15 @@ class PythonFCU(tk.Tk):
         self.canusb4.send(msg)
         self.message_text.insert(tk.END, str(output) + "\n")
         self.message_text.yview(tk.END)
+        time.sleep(0.005)
 
     def check_nodes(self):
         self.process_output_message(':SB040N0D;')
 
     def remove_node(self):
-        pass
+        del self.layout['nodes'][str(self.selected_node.get())]
+        self.save_layout()
+        self.populate_node_list()
 
     def settings(self):
         pass
@@ -173,7 +186,7 @@ class PythonFCU(tk.Tk):
         print(f"get_node_parameter {node_id} {parameter_id}")
         output = ':SB040N73' + cbus_message.pad(node_id, 4) + cbus_message.pad(parameter_id, 2) + ';'
         self.process_output_message(output)
-        time.sleep(0.01)
+        # time.sleep(0.01)
 
     def get_node_parameters(self):
         for i in range(21):
@@ -182,11 +195,23 @@ class PythonFCU(tk.Tk):
     def get_node_variable(self, node_id, variable_id):
         output = ':SB040N71' + cbus_message.pad(node_id, 4) + cbus_message.pad(variable_id, 2) + ';'
         self.process_output_message(output)
-        time.sleep(0.01)
+        # time.sleep(0.01)
 
     def get_node_variables(self):
-        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_node_variables']+1):
+        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_node_variables'] + 1):
             self.get_node_variable(self.selected_node.get(), i)
+
+    def get_event_variable(self, node_id, event_index, variable_id):
+        output = ':SB040N9C' + cbus_message.pad(node_id, 4) \
+                 + cbus_message.pad(int(event_index), 2) \
+                 + cbus_message.pad(variable_id, 2) + ';'
+        self.process_output_message(output)
+        # time.sleep(0.01)
+
+    def get_event_variables(self):
+        # event_index = self.layout['nodes'][str(self.selected_node.get())]['events'][str(self.selected_event.get())]['event_index']
+        for i in range(self.layout['nodes'][str(self.selected_node.get())]['number_of_event_variables'] + 1):
+            self.get_event_variable(self.selected_node.get(), self.selected_event.get(), i)
 
     def open_node_variable_window(self):
         new_window = tk.Toplevel(self)
@@ -202,13 +227,27 @@ class PythonFCU(tk.Tk):
         #     .grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         # node_variables_frame.grid(row=1, rowspan=5, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
         node_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        new_window.grab_set()
 
-
+    def open_event_variable_window(self):
+        new_window = tk.Toplevel(self)
+        self.get_event_variables()
+        new_window.title("Event Variables")
+        new_window.geometry("400x400")
+        # new_window.grid_rowconfigure(0, weight=1)
+        new_window.grid_columnconfigure(0, weight=1)
+        event_variables_frame = EventVariablesFrame(new_window, {"process_output_message": self.process_output_message},
+                                                    self.layout['nodes'][str(self.selected_node.get())],
+                                                    self.selected_event_variables)
+        # ttk.Label(new_window, text="Node Variables")\
+        #     .grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        # node_variables_frame.grid(row=1, rowspan=5, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky='WE')
+        event_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         new_window.grab_set()
 
     def save_layout(self):
         with open('layout.json', 'w') as f:
-            json.dump(self.layout, f)
+            json.dump(self.layout, f, indent=4)
         time.sleep(0.01)
 
     def pnn(self, msg):
@@ -258,15 +297,19 @@ class PythonFCU(tk.Tk):
         # print(f"Processing ENRSP {cbus_message.opcode(msg)}")
         node_id = cbus_message.node_id(msg)
         event_identifier = cbus_message.get_str(msg, 13, 8)
-        event_index = cbus_message.get_str(msg, 21, 2)
-        # print(f"Node Event : {node_id} {event_identifier} {event_index}")
+        event_index = cbus_message.get_int(msg, 21, 2)
+        print(f"Node Event : {node_id} {event_identifier} {event_index}")
         # print(f"Node Event for {str(self.layout['nodes'][str(node_id)])}")
-        if event_identifier not in self.layout['nodes'][str(node_id)]['events']:
-            print(f"Event {event_identifier} is not found for {str(node_id)}")
-            self.layout['nodes'][str(node_id)]['events'][event_identifier] = {
+        if str(event_index) not in self.layout['nodes'][str(node_id)]['events']:
+            number_of_event_variables = self.layout['nodes'][str(node_id)]['number_of_event_variables']
+            variables = []
+            for i in range(number_of_event_variables + 1):
+                variables.append('null')
+            print(f"Event {event_index} {event_identifier} is not found for node {str(node_id)}")
+            self.layout['nodes'][str(node_id)]['events'][event_index] = {
                 'event_identifier': event_identifier,
                 'event_index': event_index,
-                'variables': {}
+                'variables': variables
             }
             self.save_layout()
         # else:
@@ -299,6 +342,19 @@ class PythonFCU(tk.Tk):
         self.layout['nodes'][str(node_id)]['node_variables'][variable_id] = variable_value
         if self.selected_node.get() == node_id:
             self.selected_node_variables[variable_id].set(variable_value)
+        self.save_layout()
+
+    def neval(self, msg):
+        node_id = cbus_message.node_id(msg)
+        event_index = cbus_message.get_int(msg, 13, 2)
+        variable_id = cbus_message.get_int(msg, 15, 2)
+        variable_value = cbus_message.get_int(msg, 17, 2)
+        print(f"REVAL {node_id} : {event_index} : {variable_id} : {variable_value}")
+        self.layout['nodes'][str(node_id)]['events'][str(event_index)]['variables'][variable_id] = variable_value
+        print(f"Selected Event Variables {str(event_index)} {str(self.selected_event.get())}")
+        if self.selected_node.get() == node_id and self.selected_event.get() == event_index:
+            print(f"Update Selected Event Variables {str(node_id)} {str(self.selected_node.get())}")
+            self.selected_event_variables[variable_id].set(variable_value)
         self.save_layout()
 
     def rqnn(self, msg):

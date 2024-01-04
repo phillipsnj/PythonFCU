@@ -1,1 +1,207 @@
-{"nodes": {"901": {"Id": 901, "Name": "Node 901", "Type": "CANMIO", "Version": "1.0.1", "flags": {"consumer": true, "producer": true, "flim": true, "bootloading": true, "coe": true, "learn": false}, "status": true, "parameters": ["14", "A5", "62", "20", "FF", "14", "7F", "03", "1F", "0F", "01", "00", "08", "00", "00", "26", "61", "00", "00", "01", "03"], "node_variables": ["null", 70, 3, 234, 51, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 3, 6, 128, 127, 64, 3, 60, 2, 6, 128, 128, 235, 235, 255, 0, 0, 42, 4, 255, 255, 255, 3, 6, 128, 127, 64, 3, 60, 3, 6, 128, 127, 64, 3, 60, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255, 0, 6, 4, 4, 255, 255, 255], "events": {"03850065": {"event_identifier": "03850065", "event_index": "01", "variables": {}}, "03850066": {"event_identifier": "03850066", "event_index": "02", "variables": {}}, "03850003": {"event_identifier": "03850003", "event_index": "03", "variables": {}}, "03850068": {"event_identifier": "03850068", "event_index": "04", "variables": {}}, "03850069": {"event_identifier": "03850069", "event_index": "05", "variables": {}}, "03850006": {"event_identifier": "03850006", "event_index": "06", "variables": {}}, "03850007": {"event_identifier": "03850007", "event_index": "07", "variables": {}}, "03850008": {"event_identifier": "03850008", "event_index": "08", "variables": {}}, "03850009": {"event_identifier": "03850009", "event_index": "09", "variables": {}}, "0385000A": {"event_identifier": "0385000A", "event_index": "0A", "variables": {}}, "0385000B": {"event_identifier": "0385000B", "event_index": "0B", "variables": {}}, "0385000C": {"event_identifier": "0385000C", "event_index": "0C", "variables": {}}, "0385000D": {"event_identifier": "0385000D", "event_index": "0D", "variables": {}}, "0385000E": {"event_identifier": "0385000E", "event_index": "0E", "variables": {}}, "0385000F": {"event_identifier": "0385000F", "event_index": "0F", "variables": {}}, "03850010": {"event_identifier": "03850010", "event_index": "10", "variables": {}}, "03850001": {"event_identifier": "03850001", "event_index": "11", "variables": {}}, "0385012E": {"event_identifier": "0385012E", "event_index": "12", "variables": {}}, "038500CA": {"event_identifier": "038500CA", "event_index": "13", "variables": {}}, "03850002": {"event_identifier": "03850002", "event_index": "14", "variables": {}}, "03850004": {"event_identifier": "03850004", "event_index": "15", "variables": {}}, "03850005": {"event_identifier": "03850005", "event_index": "16", "variables": {}}}, "number_of_node_variables": 127, "number_of_event_variables": 20, "max_number_of_events": 255}, "4094": {"Id": 4094, "Name": "Node 4094", "Type": "CANACE8C", "Version": "1.0.1", "flags": {"consumer": true, "producer": true, "flim": true, "bootloading": true, "coe": false, "learn": false}, "status": true, "parameters": ["14", "A5", "6E", "05", "20", "02", "09", "02", "0F", "01", "01", "00", "08", "00", "00", "E4", "1A", "00", "00", "01", "00"], "node_variables": ["null", 9, 9, 0, 73, 186, 0, 0, 0, 0], "events": {"03220001": {"event_identifier": "03220001", "event_index": "01", "variables": {}}, "01000103": {"event_identifier": "01000103", "event_index": "02", "variables": {}}, "00220011": {"event_identifier": "00220011", "event_index": "04", "variables": {}}, "00CC0001": {"event_identifier": "00CC0001", "event_index": "05", "variables": {}}, "00CC0600": {"event_identifier": "00CC0600", "event_index": "06", "variables": {}}}, "number_of_node_variables": 9, "number_of_event_variables": 2, "max_number_of_events": 32}, "300": {"Id": 300, "Name": "Node 300", "Type": "CANMIO-OUT", "Version": "1.0.1", "flags": {"consumer": true, "producer": false, "flim": true, "bootloading": true, "coe": false, "learn": false}, "status": true, "parameters": ["14", "A5", "62", "34", "80", "03", "0C", "05", "0D", "0D", "01", "00", "08", "00", "00", "26", "61", "00", "00", "01", "00"], "node_variables": [0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 255, 255], "events": {"012C0010": {"event_identifier": "012C0010", "event_index": "01", "variables": {}}, "01230001": {"event_identifier": "01230001", "event_index": "02", "variables": {}}, "0000000D": {"event_identifier": "0000000D", "event_index": "03", "variables": {}}}, "number_of_node_variables": 12, "number_of_event_variables": 3, "max_number_of_events": 128}, "255": {"Id": 255, "Name": "Node 255", "Type": "CANACE8C", "Version": "", "flags": {"consumer": true, "producer": true, "flim": true, "bootloading": true, "coe": false, "learn": false}, "pnn_flags": 15, "status": true, "parameters": ["null", "null", "null", "null", "null", "02", "09", "null", "null", "null", "null", "null", "null", "null", "null", "null", "null", "null", "null", "null", "null"], "node_variables": ["null", "null", "null", "null", "null", "null", "null", "null", "null", "null"], "events": {"03220001": {"event_identifier": "03220001", "event_index": "01", "variables": {}}, "01000103": {"event_identifier": "01000103", "event_index": "02", "variables": {}}, "00220011": {"event_identifier": "00220011", "event_index": "04", "variables": {}}, "00CC0001": {"event_identifier": "00CC0001", "event_index": "05", "variables": {}}, "00CC0600": {"event_identifier": "00CC0600", "event_index": "06", "variables": {}}}, "number_of_node_variables": 9, "number_of_event_variables": 2}}, "events": {}, "settings": {"next_node_number": 256, "layout_title": "New Layout"}}
+{
+    "nodes": {
+        "256": {
+            "Id": 256,
+            "Name": "Node 256",
+            "Type": "CANACE8C",
+            "Version": "",
+            "flags": {
+                "consumer": true,
+                "producer": true,
+                "flim": true,
+                "bootloading": true,
+                "coe": false,
+                "learn": false
+            },
+            "pnn_flags": 15,
+            "status": true,
+            "parameters": [
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "02",
+                "09",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null",
+                "null"
+            ],
+            "node_variables": [
+                "null",
+                9,
+                9,
+                0,
+                73,
+                186,
+                0,
+                0,
+                0,
+                0
+            ],
+            "events": {
+                "1": {
+                    "event_identifier": "03220001",
+                    "event_index": 1,
+                    "variables": [
+                        "null",
+                        1,
+                        5
+                    ]
+                },
+                "2": {
+                    "event_identifier": "01000103",
+                    "event_index": 2,
+                    "variables": [
+                        "null",
+                        0,
+                        0
+                    ]
+                },
+                "3": {
+                    "event_identifier": "01000103",
+                    "event_index": 3,
+                    "variables": [
+                        "null",
+                        0,
+                        0
+                    ]
+                },
+                "4": {
+                    "event_identifier": "00220011",
+                    "event_index": 4,
+                    "variables": [
+                        "null",
+                        0,
+                        0
+                    ]
+                },
+                "5": {
+                    "event_identifier": "00CC0001",
+                    "event_index": 5,
+                    "variables": [
+                        "null",
+                        "null",
+                        "null"
+                    ]
+                },
+                "6": {
+                    "event_identifier": "00CC0600",
+                    "event_index": 6,
+                    "variables": [
+                        "null",
+                        "null",
+                        "null"
+                    ]
+                }
+            },
+            "number_of_node_variables": 9,
+            "number_of_event_variables": 2
+        },
+        "300": {
+            "Id": 300,
+            "Name": "Node 300",
+            "Type": "CANMIO-OUT",
+            "Version": "",
+            "flags": {
+                "consumer": true,
+                "producer": false,
+                "flim": true,
+                "bootloading": true,
+                "coe": false,
+                "learn": false
+            },
+            "pnn_flags": 13,
+            "status": true,
+            "parameters": [
+                "14",
+                "A5",
+                "62",
+                "34",
+                "80",
+                "03",
+                "0C",
+                "05",
+                "0D",
+                "0D",
+                "01",
+                "00",
+                "08",
+                "00",
+                "00",
+                "26",
+                "61",
+                "00",
+                "00",
+                "01",
+                "00"
+            ],
+            "node_variables": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                10,
+                0,
+                255,
+                255
+            ],
+            "events": {
+                "1": {
+                    "event_identifier": "012C0010",
+                    "event_index": 1,
+                    "variables": [
+                        "null",
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "2": {
+                    "event_identifier": "01230001",
+                    "event_index": 2,
+                    "variables": [
+                        "null",
+                        21,
+                        0,
+                        0
+                    ]
+                },
+                "3": {
+                    "event_identifier": "0000000D",
+                    "event_index": 3,
+                    "variables": [
+                        "null",
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            },
+            "number_of_node_variables": 12,
+            "number_of_event_variables": 3,
+            "max_number_of_events": 128
+        }
+    },
+    "events": {},
+    "settings": {
+        "next_node_number": 255,
+        "layout_title": "New Layout"
+    }
+}

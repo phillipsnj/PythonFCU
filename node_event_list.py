@@ -52,14 +52,14 @@ class NodeEventList(tk.LabelFrame):
 
     def on_open_event(self, *args):
         selected_id = self.treeview.selection()[0]
-        # self.callbacks['on_open_record'][selected_id]
+        # self.callbacks['on_open_event'][selected_id]
         print(f"on_open_event: {str(selected_id)}")
 
     def on_select_event(self, *args):
         try:
             selected_id = self.treeview.selection()[0]
-            event_id = self.treeview.item(selected_id)['values'][1]
+            event_id = self.treeview.item(selected_id)['values'][0]
             self.callbacks['on_select_event'](event_id)
-            print(f"on_select_event: {str(event_id)}")
+            print(f"on_select_event: {str(event_id)} : {str(self.treeview.item(selected_id)['values'])}")
         except IndexError:
             print(f"no events found")

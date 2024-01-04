@@ -66,7 +66,7 @@ class NodeList(tk.Frame):
         self.selected_node.set(self.treeview.item(selected_id)['values'][0])
         node_id = self.treeview.item(selected_id)['values'][0]
         self.callbacks['on_select_node'](node_id)
-        print(f"on_select_node: {str(selected_id)} {self.treeview.selection()}")
+        print(f"node_list:on_select_node: {str(selected_id)} {self.treeview.selection()}")
 
     def on_right_click(self, e, *args):
         selected_id = self.treeview.selection()[0]
